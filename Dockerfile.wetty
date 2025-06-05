@@ -3,7 +3,9 @@ FROM node:18-alpine
 # Install dependencies:
 # - openssh-client: for the 'ssh' command that Wetty will serve.
 # - bash: a common shell, useful for the entrypoint script.
-RUN apk add --no-cache openssh-client bash
+# RUN apk add --no-cache openssh-client bash
+RUN apk add --no-cache openssh-client bash git
+
 
 # Install Wetty globally from the wettyoss GitHub repository
 # Using --unsafe-perm can help with permission issues during global npm installs
