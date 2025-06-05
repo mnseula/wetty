@@ -9,7 +9,8 @@ RUN apk add --no-cache openssh-client bash git
 
 # Install Wetty globally from the wettyoss GitHub repository
 # Using --unsafe-perm can help with permission issues during global npm installs
-RUN npm install -g wettyoss/wetty --unsafe-perm
+#RUN npm install -g wettyoss/wetty --unsafe-perm
+RUN npm install -g https://github.com/wettyoss/wetty.git --unsafe-perm
 
 # Create a non-root user and group for security
 RUN addgroup -S wettygroup && adduser -S -G wettygroup wettyuser
