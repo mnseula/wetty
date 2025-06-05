@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  wetty_ssh:
+    build:
+      context: . # Assumes Dockerfile.wetty and entrypoint.sh are in the same directory
+      dockerfile: Dockerfile.wetty
+    container_name: wetty_ssh_terminal
+    ports:
+      # Map a host port (e.g., 3000) to Wetty's port inside the container
+      # We will use port 3031 to match the yacht.mikkul.com proxy target
+      - "3031:3031"
+    restart: unless-stopped
+    environment:
+      # Wetty configuration (these are used by entrypoint.sh)
+      - WETTY_PORT=3031 # Port Wetty listens on inside the container
+      - WETTY_USER=${WETTY_APP_USER:-} # Set WETTY_APP_USER in your .env file or here
+      - WETTY_PASSWORD=${WETTY_APP_PASSWORD:-} # Set WETTY_APP_PASSWORD in your .env file or here
+      - WETTY_BASE_PATH=${WETTY_APP_BASE_PATH:-/} # e.g., "/wetty/" to serve under a subpath
+      - WETTY_COMMAND=ssh # The command Wetty will serve
+    # volumes:
+      # If you need to mount SSH keys or config (use with extreme caution and secure permissions):
+      # - ~/.ssh/id_rsa_wetty_container:/home/wettyuser/.ssh/id_rsa:ro
+      # - ./my_ssh_config:/home/wettyuser/.ssh/config:ro
+      # Ensure the wettyuser inside the container has read access to these mounted files/directories.
+      # The .ssh directory and its contents usually require strict permissions (e.g., 700 for .ssh, 600 for private keys).
