@@ -1,0 +1,35 @@
+FROM node:18-alpine
+
+# Install dependencies:
+# - openssh-client: for the 'ssh' command that Wetty will serve.
+# - bash: a common shell, useful for the entrypoint script.
+RUN apk add --no-cache openssh-client bash
+
+# Install Wetty globally from the wettyoss GitHub repository
+# Using --unsafe-perm can help with permission issues during global npm installs
+RUN npm install -g wettyoss/wetty --unsafe-perm
+
+# Create a non-root user and group for security
+RUN addgroup -S wettygroup && adduser -S -G wettygroup wettyuser
+
+# Set the working directory for the wettyuser
+WORKDIR /home/wettyuser
+
+# Switch to the non-root user
+USER wettyuser
+
+# Expose Wetty's default port (can be overridden by WETTY_PORT env var)
+EXPOSE 3000
+
+# Environment variables for configuration (can be set in docker-compose.yml)
+ENV WETTY_PORT 3000
+ENV WETTY_USER ""
+ENV WETTY_PASSWORD ""
+ENV WETTY_BASE_PATH "/"
+ENV WETTY_COMMAND "ssh" # The command Wetty will run
+
+# Copy and set permissions for the entrypoint script
+COPY --chown=wettyuser:wettygroup entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
