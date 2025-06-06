@@ -1,9 +1,13 @@
 FROM node:current-alpine as base
-RUN apk add -U build-base python3
+
+# Add build dependencies and Python build tools
+RUN apk add -U build-base python3 py3-pip py3-setuptools py3-distutils
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 RUN npx pnpm i -g pnpm@latest
+
 WORKDIR /usr/src/app
 COPY . /usr/src/app
 
@@ -19,11 +23,15 @@ LABEL maintainer="butlerx@notthe.cloud"
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 EXPOSE 3000
+
+# Copy built node_modules and app build
 COPY --from=prod-deps /usr/src/app/node_modules /usr/src/app/node_modules
 COPY --from=build /usr/src/app/build /usr/src/app/build
 COPY package.json /usr/src/app
+
+# Add SSH client tools and utils
 RUN apk add -U coreutils openssh-client sshpass && \
-    mkdir ~/.ssh
+    mkdir -p ~/.ssh
 
 EXPOSE 8000
 CMD [ "pnpm", "start" ]
