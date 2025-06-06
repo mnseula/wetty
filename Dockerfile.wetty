@@ -1,32 +1,32 @@
 FROM node:18-alpine
 
-# Install dependencies:
-# - openssh-client: for the 'ssh' command that Wetty will serve.
-# - bash: a common shell, useful for the entrypoint script.
+# Install dependencies
 RUN apk add --no-cache openssh-client bash git python3 py3-pip py3-setuptools py3-wheel make g++
 
+# Install Wetty and FontAwesome explicitly
 RUN npm install -g wetty --unsafe-perm
+RUN npm install -g @fortawesome/fontawesome-svg-core --unsafe-perm
 
-# Create a non-root user and group for security
+# Create a non-root user and group
 RUN addgroup -S wettygroup && adduser -S -G wettygroup wettyuser
 
-# Set the working directory for the wettyuser
+# Set working directory
 WORKDIR /home/wettyuser
 
-# Switch to the non-root user
+# Switch to non-root user
 USER wettyuser
 
-# Expose Wetty's default port (can be overridden by WETTY_PORT env var)
+# Expose port
 EXPOSE 3000
 
-# Environment variables for configuration (can be set in docker-compose.yml)
+# Environment variables
 ENV WETTY_PORT 3000
 ENV WETTY_USER ""
 ENV WETTY_PASSWORD ""
 ENV WETTY_BASE_PATH "/"
-ENV WETTY_COMMAND "ssh" # The command Wetty will run
+ENV WETTY_COMMAND "ssh"
 
-# Copy and set permissions for the entrypoint script
+# Copy and set permissions for entrypoint
 COPY --chown=wettyuser:wettygroup entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
