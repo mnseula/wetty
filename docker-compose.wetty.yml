@@ -1,19 +1,43 @@
-version: '3.8'
+version: '3.5'
 services:
-  wetty_ssh:
+  wetty:
+    image: wettyoss/wetty
     build:
       context: .
-      dockerfile: Dockerfile.wetty
-    container_name: wetty_ssh_terminal
+      dockerfile: Dockerfile
+    entrypoint: pnpm run docker-compose-entrypoint
+    tty: true
+    working_dir: /usr/src/app
     ports:
-      - "3031:3031"
-    restart: unless-stopped
+      - '3031:3000'
     environment:
-      - WETTY_PORT=3031
-      # - WETTY_USER=${WETTY_APP_USER:-}
-      # - WETTY_PASSWORD=${WETTY_APP_PASSWORD:-}
-      - WETTY_BASE_PATH=/wetty/
-      - WETTY_COMMAND=ssh mike@192.168.1.161  # Replace with your SSH user and host
+      SSHHOST: 'wetty-ssh'
+      SSHPORT: 22
+      NODE_ENV: 'development'
+
+  web:
+    image: nginx
     volumes:
-      - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa:ro
-      - ~/.ssh/known_hosts:/home/wettyuser/.ssh/known_hosts:ro
+      - ./conf/nginx.template:/etc/nginx/conf.d/wetty.template
+    ports:
+      - '80:80'
+    environment:
+      - NGINX_DOMAIN=wetty.com
+      - NGINX_PORT=80
+      - WETTY_HOST=wetty
+      - WETTY_PORT=3000
+    command: >-
+      /bin/bash -c "envsubst
+      '$${NGINX_DOMAIN},$${NGINX_PORT},$${WETTY_HOST},$${WETTY_PORT}' <
+      /etc/nginx/conf.d/wetty.template > /etc/nginx/conf.d/default.conf && nginx
+      -g 'daemon off;'"
+
+  wetty-ssh:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wettyoss/wetty:ssh
+
+networks:
+  default:
+    name: wetty
