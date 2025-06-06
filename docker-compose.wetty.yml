@@ -13,7 +13,7 @@ services:
       - WETTY_USER=${WETTY_APP_USER:-}
       - WETTY_PASSWORD=${WETTY_APP_PASSWORD:-}
       - WETTY_BASE_PATH=/wetty/
-      - WETTY_COMMAND=ssh mike@bit.mikkul.com  # Replace with your SSH user and host
+      - WETTY_COMMAND=ssh mike@192.168.1.161  # Replace with your SSH user and host
     volumes:
       - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa:ro
       - ~/.ssh/known_hosts:/home/wettyuser/.ssh/known_hosts:ro
