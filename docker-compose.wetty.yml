@@ -15,4 +15,4 @@ services:
       - WETTY_BASE_PATH=/wetty/
       - WETTY_COMMAND=ssh mike@bit.mikkul.com  # Replace with your SSH user and host
     volumes:
-      - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa:ro
+      - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa
