@@ -1,33 +1,29 @@
-FROM node:18-alpine
+FROM node:current-alpine as base
+RUN apk add -U build-base python3
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+RUN npx pnpm i -g pnpm@latest
+WORKDIR /usr/src/app
+COPY . /usr/src/app
 
-# Install dependencies
-RUN apk add --no-cache openssh-client bash git python3 py3-pip py3-setuptools py3-wheel make g++
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
-# Install Wetty and FontAwesome dependencies
-RUN npm install -g wetty@2.5.0 --unsafe-perm
-RUN npm install -g @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/free-regular-svg-icons --unsafe-perm
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
 
-# Create a non-root user and group
-RUN addgroup -S wettygroup && adduser -S -G wettygroup wettyuser
-
-# Set working directory
-WORKDIR /home/wettyuser
-
-# Switch to non-root user
-USER wettyuser
-
-# Expose port
+FROM node:current-alpine
+LABEL maintainer="butlerx@notthe.cloud"
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
 EXPOSE 3000
+COPY --from=prod-deps /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --from=build /usr/src/app/build /usr/src/app/build
+COPY package.json /usr/src/app
+RUN apk add -U coreutils openssh-client sshpass && \
+    mkdir ~/.ssh
 
-# Environment variables
-ENV WETTY_PORT 3000
-ENV WETTY_USER
-#ENV WETTY_PASSWORD
-#ENV WETTY_BASE_PATH="/"
-ENV WETTY_COMMAND "ssh"
-
-# Copy and set permissions for entrypoint
-COPY --chown=wettyuser:wettygroup entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+EXPOSE 8000
+CMD [ "pnpm", "start" ]
