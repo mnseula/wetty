@@ -1,14 +1,18 @@
 version: '3.8'
 services:
   wetty_ssh:
-    image: wettyoss/wetty:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.wetty
     container_name: wetty_ssh_terminal
     ports:
-      - "3031:3000"
+      - "3031:3031"
     restart: unless-stopped
     environment:
-      - WETTY_PORT=3000
-      - WETTY_BASE_PATH=/
-      - WETTY_COMMAND=ssh mike@bit.mikkul.com
-volumes:
-  - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa:ro
+      - WETTY_PORT=3031
+      - WETTY_USER=${WETTY_APP_USER:-}
+      - WETTY_PASSWORD=${WETTY_APP_PASSWORD:-}
+      - WETTY_BASE_PATH=/wetty/
+      - WETTY_COMMAND=ssh mike@bit.mikkul.com  # Replace with your SSH user and host
+    volumes:
+      - ~/.ssh/id_rsa:/home/wettyuser/.ssh/id_rsa:ro
