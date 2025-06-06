@@ -22,8 +22,8 @@ EXPOSE 3000
 # Environment variables
 ENV WETTY_PORT 3000
 ENV WETTY_USER
-ENV WETTY_PASSWORD
-ENV WETTY_BASE_PATH="/"
+#ENV WETTY_PASSWORD
+#ENV WETTY_BASE_PATH="/"
 ENV WETTY_COMMAND "ssh"
 
 # Copy and set permissions for entrypoint
