@@ -9,4 +9,4 @@ services:
     environment:
       - WETTY_PORT=3000
       - WETTY_BASE_PATH=/
-      - WETTY_COMMAND=ssh bit.mikkul.com
+      - WETTY_COMMAND=ssh mike@bit.mikkul.com
