@@ -16,7 +16,7 @@ services:
       - WETTY_PORT=3031 # Port Wetty listens on inside the container
       - WETTY_USER=${WETTY_APP_USER:-} # Set WETTY_APP_USER in your .env file or here
       - WETTY_PASSWORD=${WETTY_APP_PASSWORD:-} # Set WETTY_APP_PASSWORD in your .env file or here
-      - WETTY_BASE_PATH=${WETTY_APP_BASE_PATH:-/} # e.g., "/wetty/" to serve under a subpath
+      - WETTY_BASE_PATH=/wetty/ # e.g., "/wetty/" to serve under a subpath
       - WETTY_COMMAND=ssh # The command Wetty will serve
     # volumes:
       # If you need to mount SSH keys or config (use with extreme caution and secure permissions):
